@@ -55,6 +55,10 @@
           ];
         }
 
+        that.isSameAs = function(other) {
+          return x == other.x && y == other.y;
+        }
+
         return that;
       }
 
@@ -80,7 +84,7 @@
 
         for (index = 0; index < candidates.length; ++index) {
           for (i = 0; i < filtered.length; ++i) {
-            if (filtered[i].x == candidates[index].x && filtered[i].y == candidates[index].y) {
+            if (filtered[i].isSameAs(candidates[index])) {
               seenAlready = true;
             }
           }
@@ -104,7 +108,7 @@
 
           var i;
           for (i = 0; i < cells.length; ++i) {
-           if (cells[i].x == candidates[index].x && cells[i].y == candidates[index].y) {
+           if (cells[i].isSameAs(candidates[index])) {
             wasAlive = true;
            }   
 
@@ -112,7 +116,7 @@
 
            var j;
            for (j = 0; j < aroundCell.length; ++j) {
-            if(cells[i].x == aroundCell[j].x && cells[i].y == aroundCell[j].y ) {
+            if(cells[i].isSameAs(aroundCell[j])) {
               numberOfNeighbours = numberOfNeighbours + 1;            
             }
 
