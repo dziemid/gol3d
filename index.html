@@ -1,0 +1,219 @@
+<html>
+  <head>
+    <title>My first Three.js app</title>
+    <style>
+      body { margin: 0; }
+      canvas { width: 100%; height: 100% }
+      #info {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 1000;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    
+    <script>
+
+      var stopCounter = 0;
+      var nextGeneration = function(cells) {
+
+        // console.log("cells", cells);  
+
+        var index, i;
+        var candidates = [];
+
+        for (index = 0; index < cells.length; ++index) {
+
+          candidates.push({x: cells[index].x-1, y: cells[index].y-1});
+          candidates.push({x: cells[index].x, y: cells[index].y-1});
+          candidates.push({x: cells[index].x+1, y: cells[index].y-1});
+
+          candidates.push({x: cells[index].x-1, y: cells[index].y});
+          candidates.push({x: cells[index].x, y: cells[index].y});
+          candidates.push({x: cells[index].x+1, y: cells[index].y});
+         
+          candidates.push({x: cells[index].x-1, y: cells[index].y+1});
+          candidates.push({x: cells[index].x, y: cells[index].y+1});
+          candidates.push({x: cells[index].x+1, y: cells[index].y+1});
+        }
+        
+        var filtered = [];
+
+        // console.log("candidates", candidates);    
+
+        var seenAlready = false;
+
+        for (index = 0; index < candidates.length; ++index) {
+          for (i = 0; i < filtered.length; ++i) {
+            if (filtered[i].x == candidates[index].x && filtered[i].y == candidates[index].y) {
+              seenAlready = true;
+            }
+          }
+
+          if (!seenAlready) {
+            filtered.push(candidates[index]);
+          }
+          seenAlready = false;
+        }
+
+        // console.log("filtered", filtered);
+
+        candidates = filtered;
+        
+        var nextGenerationCells = [];
+
+        for (index = 0; index < candidates.length; ++index) {
+          var numberOfNeighbours = 0;
+
+          var wasAlive = false;
+
+          var i;
+          for (i = 0; i < cells.length; ++i) {
+           if (cells[i].x == candidates[index].x && cells[i].y == candidates[index].y) {
+            wasAlive = true;
+           }   
+
+           if (
+            (cells[i].x == candidates[index].x-1 && cells[i].y == candidates[index].y-1) ||
+            (cells[i].x == candidates[index].x   && cells[i].y == candidates[index].y-1) ||
+            (cells[i].x == candidates[index].x+1 && cells[i].y == candidates[index].y-1) ||
+
+            (cells[i].x == candidates[index].x-1 && cells[i].y == candidates[index].y) ||
+            (cells[i].x == candidates[index].x+1 && cells[i].y == candidates[index].y) ||
+
+            (cells[i].x == candidates[index].x-1 && cells[i].y == candidates[index].y+1) ||
+            (cells[i].x == candidates[index].x   && cells[i].y == candidates[index].y+1) ||
+            (cells[i].x == candidates[index].x+1 && cells[i].y == candidates[index].y+1) 
+            ) 
+           {
+              numberOfNeighbours = numberOfNeighbours + 1;            
+           }
+          }
+          if ((numberOfNeighbours == 2 && wasAlive) || numberOfNeighbours == 3) {
+            nextGenerationCells.push(candidates[index]);
+          } 
+        }
+
+        nextGenerationCells.push(
+          {x: Math.floor((Math.random() * 60) + 1), y: Math.floor((Math.random() * 60) + 1)}
+          );
+        nextGenerationCells.push(
+          {x: Math.floor((Math.random() * 60) + 1), y: Math.floor((Math.random() * 60) + 1)}
+          );
+        nextGenerationCells.push(
+          {x: Math.floor((Math.random() * 60) + 1), y: Math.floor((Math.random() * 60) + 1)}
+          );
+        
+        return nextGenerationCells;
+      };
+
+      var cells = [
+        {x: 7, y: 1},
+        {x: 7, y: 2},
+        {x: 7, y: 3},
+
+        {x: -17, y: 11},
+        {x: -17, y: 12},
+        {x: -17, y: 13},
+
+        {x: 10, y: -9},  
+        {x: 12, y: -10},
+        {x: 12, y: -9},             
+        {x: 12, y: -8},             
+        {x: 11, y: -8},            
+
+        {x: 20, y: -9},  
+        {x: 22, y: -10},
+        {x: 22, y: -9},             
+        {x: 22, y: -8},             
+        {x: 21, y: -8},            
+
+
+        {x: 0, y: 1},  
+        {x: 2, y: 0},
+        {x: 2, y: 1},             
+        {x: 2, y: 2},             
+        {x: 1, y: 2}            
+      ];
+
+      var scene = new THREE.Scene();
+      var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+      var cube = new THREE.Mesh( geometry, material );
+
+      scene.add( cube );
+
+      camera.position.z = 15;
+
+      var camera_z_direction = 0.3;
+
+      var render = function () {
+        stopCounter = stopCounter + 1;
+        // if (stopCounter > 50) {
+        //   return;
+        // }
+        var obj, i;
+        for ( i = scene.children.length - 1; i >= 0 ; i -- ) {
+            obj = scene.children[ i ];
+            if (obj !== camera) {
+                scene.remove(obj);
+            }
+        };
+
+        var index;
+
+        cells = nextGeneration(cells);
+
+        $("#numberOfCells").text(cells.length);
+
+        for (index = 0; index < cells.length; ++index) {
+          var cube = new THREE.Mesh( geometry, material );
+          cube.position.x = cells[index].x;
+          cube.position.y = cells[index].y;
+          scene.add( cube );            
+        }
+
+        // cube.rotation.x += 0.1;
+        // cube.rotation.y += 0.1;
+
+        // cube.position.x = cube.position.x + 1;
+        // cube.position.y = cube.position.y + 1;
+
+        camera.rotation.z += 0.01;
+        // camera.rotation.x += 1;
+        camera.position.z += camera_z_direction;
+        if (camera.position.z > 150 || camera.position.z < 15) {
+          camera_z_direction = -camera_z_direction;
+        }
+
+        renderer.render(scene, camera);
+
+        setTimeout(function(){
+          requestAnimationFrame( render );
+        }, 50);
+        
+      };
+
+      render();
+    </script>
+
+  <div id="info">
+    Game of life by @dziemid
+    <div>
+      Number of cells: <span id="numberOfCells">???</span>
+    </div>
+  </div>  
+  </body>
+</html>
