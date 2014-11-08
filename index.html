@@ -108,20 +108,14 @@
             wasAlive = true;
            }   
 
-           if (
-            (cells[i].x == candidates[index].x-1 && cells[i].y == candidates[index].y-1) ||
-            (cells[i].x == candidates[index].x   && cells[i].y == candidates[index].y-1) ||
-            (cells[i].x == candidates[index].x+1 && cells[i].y == candidates[index].y-1) ||
+           var aroundCell = candidates[index].neighbours();
 
-            (cells[i].x == candidates[index].x-1 && cells[i].y == candidates[index].y) ||
-            (cells[i].x == candidates[index].x+1 && cells[i].y == candidates[index].y) ||
-
-            (cells[i].x == candidates[index].x-1 && cells[i].y == candidates[index].y+1) ||
-            (cells[i].x == candidates[index].x   && cells[i].y == candidates[index].y+1) ||
-            (cells[i].x == candidates[index].x+1 && cells[i].y == candidates[index].y+1) 
-            ) 
-           {
+           var j;
+           for (j = 0; j < aroundCell.length; ++j) {
+            if(cells[i].x == aroundCell[j].x && cells[i].y == aroundCell[j].y ) {
               numberOfNeighbours = numberOfNeighbours + 1;            
+            }
+
            }
           }
           if ((numberOfNeighbours == 2 && wasAlive) || numberOfNeighbours == 3) {
