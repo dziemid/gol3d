@@ -93,9 +93,8 @@
         var candidates = [];
 
         for (index = 0; index < cells.length; ++index) {
-          candidates = candidates.concat(cells[index].neighbours());
           candidates.push(cells[index]);
-          
+          candidates = candidates.concat(cells[index].neighbours());
         }
         
         var filtered = [];
