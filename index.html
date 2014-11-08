@@ -34,13 +34,7 @@
 
     <script>
 
-      var Cell = function(x, y) {
-        that = {}
-
-        that.x = x;
-        that.y = y;
-
-        that.neighbours = function() {
+      var neighboursOf = function(x,y) {
           return [
             Cell(x-1,y-1),
             Cell(x,y-1),
@@ -53,6 +47,28 @@
             Cell(x,y+1),
             Cell(x+1,y+1),
           ];
+        };
+
+      var Cell = function(x, y) {
+        var that = {}
+
+        that.x = x;
+        that.y = y;
+        that.cube = null;
+
+        that.object3d = function(geometry, material) {
+          if (that.cube) {
+            return that.cube;
+          }
+          var c = new THREE.Mesh( geometry, material );
+          c.position.x = x;
+          c.position.y = y;
+          that.cube = c;
+          return c;
+        }
+
+        that.neighbours = function() {
+          return neighboursOf(x,y);
         }
 
         that.isSameAs = function(other) {
@@ -165,10 +181,6 @@
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
       var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 
-      var cube = new THREE.Mesh( geometry, material );
-
-      scene.add( cube );
-
       camera.position.z = 15;
 
       var camera_z_direction = 0.3;
@@ -193,11 +205,9 @@
         $("#numberOfCells").text(cells.length);
 
         for (index = 0; index < cells.length; ++index) {
-          var cube = new THREE.Mesh( geometry, material );
-          cube.position.x = cells[index].x;
-          cube.position.y = cells[index].y;
+          
           // cube.position.z = Math.floor((Math.random() * 5) + 1);
-          scene.add( cube );            
+          scene.add( cells[index].object3d(geometry, material) );            
         }
 
         // cube.rotation.x += 0.1;
