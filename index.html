@@ -40,6 +40,21 @@
         that.x = x;
         that.y = y;
 
+        that.neighbours = function() {
+          return [
+            Cell(x-1,y-1),
+            Cell(x,y-1),
+            Cell(x+1,y-1),
+
+            Cell(x-1,y),
+            Cell(x+1,y),
+
+            Cell(x-1,y+1),
+            Cell(x,y+1),
+            Cell(x+1,y+1),
+          ];
+        }
+
         return that;
       }
 
@@ -52,18 +67,9 @@
         var candidates = [];
 
         for (index = 0; index < cells.length; ++index) {
-
-          candidates.push({x: cells[index].x-1, y: cells[index].y-1});
-          candidates.push({x: cells[index].x, y: cells[index].y-1});
-          candidates.push({x: cells[index].x+1, y: cells[index].y-1});
-
-          candidates.push({x: cells[index].x-1, y: cells[index].y});
-          candidates.push({x: cells[index].x, y: cells[index].y});
-          candidates.push({x: cells[index].x+1, y: cells[index].y});
-         
-          candidates.push({x: cells[index].x-1, y: cells[index].y+1});
-          candidates.push({x: cells[index].x, y: cells[index].y+1});
-          candidates.push({x: cells[index].x+1, y: cells[index].y+1});
+          candidates = candidates.concat(cells[index].neighbours());
+          candidates.push(cells[index]);
+          
         }
         
         var filtered = [];
@@ -123,15 +129,10 @@
           } 
         }
 
-        nextGenerationCells.push(
-          {x: Math.floor((Math.random() * 60) + 1), y: Math.floor((Math.random() * 60) + 1)}
-          );
-        nextGenerationCells.push(
-          {x: Math.floor((Math.random() * 60) + 1), y: Math.floor((Math.random() * 60) + 1)}
-          );
-        nextGenerationCells.push(
-          {x: Math.floor((Math.random() * 60) + 1), y: Math.floor((Math.random() * 60) + 1)}
-          );
+        nextGenerationCells.push(Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
+        nextGenerationCells.push(Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
+        nextGenerationCells.push(Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
+        
         
         return nextGenerationCells;
       };
