@@ -52,6 +52,8 @@
       var Cell = function(x, y) {
         var that = {}
 
+        var calculatedNeighbours;
+
         that.x = x;
         that.y = y;
         that.cube = null;
@@ -68,7 +70,11 @@
         }
 
         that.neighbours = function() {
-          return neighboursOf(x,y);
+          if (calculatedNeighbours) {
+            return calculatedNeighbours;
+          }
+          calculatedNeighbours = neighboursOf(x,y);
+          return calculatedNeighbours;
         }
 
         that.isSameAs = function(other) {
