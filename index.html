@@ -15,6 +15,8 @@
 
     <script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://threejs.org/examples/js/controls/TrackballControls.js"></script>
+    
     
     <script type="text/javascript">
       var _gaq = _gaq || [];
@@ -70,6 +72,19 @@
             new Cell(this.x-1,this.y+1,this.z),
             new Cell(this.x,this.y+1,this.z),
             new Cell(this.x+1,this.y+1,this.z),
+
+            // new Cell(this.x-1,this.y-1,this.z+1),
+            // new Cell(this.x,this.y-1,this.z+1),
+            // new Cell(this.x+1,this.y-1,this.z+1),
+
+            // new Cell(this.x-1,this.y,this.z+1),
+            // new Cell(this.x,this.y,this.z+1),
+            // new Cell(this.x+1,this.y,this.z+1),
+
+            // new Cell(this.x-1,this.y+1,this.z+1),
+            // new Cell(this.x,this.y+1,this.z+1),
+            // new Cell(this.x+1,this.y+1,this.z+1),
+
           ];
         return this.calculatedNeighbours;
       };    
@@ -113,6 +128,9 @@
           }
 
           if (!seenAlready) {
+            if (filtered.length > 1500) {
+              return filtered;
+            }
             filtered.push(candidates[index]);
           }
           seenAlready = false;
@@ -157,17 +175,16 @@
            }
           }
 
-          if ( numberOfNeighbours == 3 || (numberOfNeighbours == 2 && wasAlive(candidates[index], cells))) {
+          if ( numberOfNeighbours == 2 || (numberOfNeighbours == 3 && wasAlive(candidates[index], cells))) {
             nextGenerationCells.push(candidates[index]);
           } 
         }
 
-        nextGenerationCells.push(new Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
-        nextGenerationCells.push(new Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
-        nextGenerationCells.push(new Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
         
-        
-        return nextGenerationCells;
+        return nextGenerationCells.concat(new Cell(
+            Math.floor((Math.random() * 60) + 1),
+            Math.floor((Math.random() * 60) + 1)
+          ));
       };
 
       var Blinker = function(x,y) {
@@ -188,8 +205,8 @@
         ];
       }
       var cells = [
-      ].concat(Glider(0,0)).concat(Glider(20,-9)).concat(Glider(10,-9)).concat(Blinker(7,1)).concat(Blinker(17,11));
-
+      ].concat(Glider(-10,-9)).concat(Blinker(37,11)).concat(Blinker(50,0)).concat(Glider(4,0,4))
+      
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
@@ -200,7 +217,7 @@
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
       var material = new THREE.MeshLambertMaterial( { color: 0x00ffff, emissive: 0x00aa00} );
 
-      camera.position.z = 15;
+      camera.position.z = 45;
 
       var camera_z_direction = 0.3;
 
@@ -208,6 +225,55 @@
       var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
       directionalLight.position.set( 100, 50, 1000 );
       scene.add( directionalLight );  
+
+      function buildAxes( length ) {
+        var axes = new THREE.Object3D();
+
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false ) ); // +X
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( -length, 0, 0 ), 0xFF0000, true) ); // -X
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false ) ); // +Y
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, -length, 0 ), 0x00FF00, true ) ); // -Y
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false ) ); // +Z
+        axes.add( buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, -length ), 0x0000FF, true ) ); // -Z
+
+        return axes;
+
+      }
+
+      function buildAxis( src, dst, colorHex, dashed ) {
+        var geom = new THREE.Geometry(),
+          mat; 
+
+        if(dashed) {
+          mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
+        } else {
+          mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+        }
+
+        geom.vertices.push( src.clone() );
+        geom.vertices.push( dst.clone() );
+        geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
+
+        var axis = new THREE.Line( geom, mat, THREE.LinePieces );
+
+        return axis;
+
+      }
+
+      controls = new THREE.TrackballControls( camera );
+  controls.rotateSpeed = 1.0;
+  controls.zoomSpeed = 0.2;
+  controls.panSpeed = 0.8;
+
+  controls.noZoom = false;
+  controls.noPan = false;
+
+  controls.staticMoving = true;
+  controls.dynamicDampingFactor = 0.3;
+
+      // Add axes
+      axes = buildAxes( 1000 );
+      scene.add( axes );
 
 
 
@@ -221,6 +287,8 @@
         };
 
         var index;
+
+        controls.update();
 
         cells = nextGeneration(cells);
 
@@ -238,9 +306,9 @@
         // cube.position.x = cube.position.x + 1;
         // cube.position.y = cube.position.y + 1;
 
-        camera.rotation.z += 0.01;
+        // camera.rotation.z += 0.01;
 
-        camera.position.z += camera_z_direction;
+        //camera.position.z += camera_z_direction;
 
         if (camera.position.z > 100 || camera.position.z < 15) {
           camera_z_direction = -camera_z_direction;
@@ -250,7 +318,7 @@
         
         setTimeout(function(){
           requestAnimationFrame( render );  
-        }, 50);
+        }, 150);
         
       };
 
