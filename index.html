@@ -129,17 +129,15 @@
         for (index = 0; index < candidates.length; ++index) {
           var numberOfNeighbours = 0;
 
-          var i;
+          var i,j;
 
           var aroundCell = candidates[index].neighbours();
-
-          for (i = 0; i < cells.length; ++i) {
-           var j;
-           for (j = 0; j < aroundCell.length; ++j) {
-            if(cells[i].isSameAs(aroundCell[j])) {
-              numberOfNeighbours = numberOfNeighbours + 1;            
-            }
-
+          for (j = 0; j < aroundCell.length; ++j) {
+            for (i = 0; i < cells.length; ++i) {
+              if(cells[i].isSameAs(aroundCell[j])) {
+                numberOfNeighbours = numberOfNeighbours + 1;            
+                break;
+              }
            }
           }
 
