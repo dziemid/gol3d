@@ -122,12 +122,13 @@
           var wasAlive = false;
 
           var i;
+
+          var aroundCell = candidates[index].neighbours();
+
           for (i = 0; i < cells.length; ++i) {
            if (cells[i].isSameAs(candidates[index])) {
             wasAlive = true;
            }   
-
-           var aroundCell = candidates[index].neighbours();
 
            var j;
            for (j = 0; j < aroundCell.length; ++j) {
