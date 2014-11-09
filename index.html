@@ -106,6 +106,16 @@
 
         return filtered;
       }
+
+      var wasAlive = function(cell, aliveCells) {
+        var i;
+        for (i = 0; i < aliveCells.length; ++i) {
+           if (aliveCells[i].isSameAs(cell)) {
+            return true;
+           }   
+          }
+        return false;
+      }
       
       var nextGeneration = function(cells) {
 
@@ -119,17 +129,11 @@
         for (index = 0; index < candidates.length; ++index) {
           var numberOfNeighbours = 0;
 
-          var wasAlive = false;
-
           var i;
 
           var aroundCell = candidates[index].neighbours();
 
           for (i = 0; i < cells.length; ++i) {
-           if (cells[i].isSameAs(candidates[index])) {
-            wasAlive = true;
-           }   
-
            var j;
            for (j = 0; j < aroundCell.length; ++j) {
             if(cells[i].isSameAs(aroundCell[j])) {
@@ -138,7 +142,8 @@
 
            }
           }
-          if ((numberOfNeighbours == 2 && wasAlive) || numberOfNeighbours == 3) {
+
+          if ( numberOfNeighbours == 3 || (numberOfNeighbours == 2 && wasAlive(candidates[index], cells))) {
             nextGenerationCells.push(candidates[index]);
           } 
         }
