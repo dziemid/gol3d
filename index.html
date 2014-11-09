@@ -225,10 +225,10 @@
         }
 
         renderer.render(scene, camera);
-        requestAnimationFrame( render );
-        // setTimeout(function(){
-          
-        // }, 50);
+        
+        setTimeout(function(){
+          requestAnimationFrame( render );  
+        }, 250);
         
       };
 
