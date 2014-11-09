@@ -34,9 +34,11 @@
 
     <script>
 
-      function Cell(x,y) {
+      function Cell(x,y,z) {
+        z = typeof z !== 'undefined' ? z : 0;
         this.x = x;
         this.y = y;
+        this.z = z;
       }
 
       Cell.prototype.neighbours = function(){
@@ -45,22 +47,35 @@
         }
 
         this.calculatedNeighbours = [
-            new Cell(this.x-1,this.y-1),
-            new Cell(this.x,this.y-1),
-            new Cell(this.x+1,this.y-1),
+            // new Cell(this.x-1,this.y-1,this.z-1),
+            // new Cell(this.x,this.y-1,this.z-1),
+            // new Cell(this.x+1,this.y-1,this.z-1),
 
-            new Cell(this.x-1,this.y),
-            new Cell(this.x+1,this.y),
+            // new Cell(this.x-1,this.y,this.z-1),
+            // new Cell(this.x,this.y,this.z-1),
+            // new Cell(this.x+1,this.y,this.z-1),
 
-            new Cell(this.x-1,this.y+1),
-            new Cell(this.x,this.y+1),
-            new Cell(this.x+1,this.y+1),
+            // new Cell(this.x-1,this.y+1,this.z-1),
+            // new Cell(this.x,this.y+1,this.z-1),
+            // new Cell(this.x+1,this.y+1,this.z-1),
+
+
+            new Cell(this.x-1,this.y-1,this.z),
+            new Cell(this.x,this.y-1,this.z),
+            new Cell(this.x+1,this.y-1,this.z),
+
+            new Cell(this.x-1,this.y,this.z),
+            new Cell(this.x+1,this.y,this.z),
+
+            new Cell(this.x-1,this.y+1,this.z),
+            new Cell(this.x,this.y+1,this.z),
+            new Cell(this.x+1,this.y+1,this.z),
           ];
         return this.calculatedNeighbours;
       };    
 
       Cell.prototype.isSameAs = function(other) {
-        return this.x == other.x && this.y == other.y;
+        return this.x == other.x && this.y == other.y && this.z == other.z;
       }
 
       Cell.prototype.object3d = function(geometry, material) {
@@ -70,6 +85,7 @@
           var c = new THREE.Mesh( geometry, material );
           c.position.x = this.x;
           c.position.y = this.y;
+          c.position.z = this.z;
           this.cube = c;
           return c;
       }
@@ -182,17 +198,24 @@
       document.body.appendChild( renderer.domElement );
 
       var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-      var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      var material = new THREE.MeshLambertMaterial( { color: 0x00ffff, emissive: 0x00aa00} );
 
       camera.position.z = 15;
 
       var camera_z_direction = 0.3;
 
+      
+      var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.8 );
+      directionalLight.position.set( 100, 50, 1000 );
+      scene.add( directionalLight );  
+
+
+
       var render = function () {
         var obj, i;
         for ( i = scene.children.length - 1; i >= 0 ; i -- ) {
             obj = scene.children[ i ];
-            if (obj !== camera) {
+            if (obj !== camera && obj !== directionalLight) {
                 scene.remove(obj);
             }
         };
@@ -217,10 +240,9 @@
 
         camera.rotation.z += 0.01;
 
-        // camera.rotation.x += 1;
         camera.position.z += camera_z_direction;
 
-        if (camera.position.z > 150 || camera.position.z < 15) {
+        if (camera.position.z > 100 || camera.position.z < 15) {
           camera_z_direction = -camera_z_direction;
         }
 
@@ -228,7 +250,7 @@
         
         setTimeout(function(){
           requestAnimationFrame( render );  
-        }, 250);
+        }, 50);
         
       };
 
