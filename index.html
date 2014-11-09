@@ -275,6 +275,14 @@
       axes = buildAxes( 1000 );
       scene.add( axes );
 
+      var recalculateLife = function() {
+        cells = nextGeneration(cells);
+        setTimeout(function(){
+          recalculateLife();  
+        }, 500);
+      }
+
+      recalculateLife();
 
 
       var render = function () {
@@ -290,14 +298,14 @@
 
         controls.update();
 
-        cells = nextGeneration(cells);
+        var displayingCells = cells;
 
-        $("#numberOfCells").text(cells.length);
+        $("#numberOfCells").text(displayingCells.length);
 
-        for (index = 0; index < cells.length; ++index) {
+        for (index = 0; index < displayingCells.length; ++index) {
           
           // cube.position.z = Math.floor((Math.random() * 5) + 1);
-          scene.add( cells[index].object3d(geometry, material) );            
+          scene.add( displayingCells[index].object3d(geometry, material) );            
         }
 
         // cube.rotation.x += 0.1;
@@ -313,12 +321,13 @@
         if (camera.position.z > 100 || camera.position.z < 15) {
           camera_z_direction = -camera_z_direction;
         }
+        
 
         renderer.render(scene, camera);
         
         setTimeout(function(){
           requestAnimationFrame( render );  
-        }, 150);
+        }, 50);
         
       };
 
