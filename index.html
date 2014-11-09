@@ -34,61 +34,47 @@
 
     <script>
 
-      var neighboursOf = function(x,y) {
-          return [
-            Cell(x-1,y-1),
-            Cell(x,y-1),
-            Cell(x+1,y-1),
-
-            Cell(x-1,y),
-            Cell(x+1,y),
-
-            Cell(x-1,y+1),
-            Cell(x,y+1),
-            Cell(x+1,y+1),
-          ];
-        };
-
-      var Cell = function(x, y) {
-        var that = {}
-
-        var calculatedNeighbours;
-
-        that.x = x;
-        that.y = y;
-        that.cube = null;
-
-        that.object3d = function(geometry, material) {
-          if (that.cube) {
-            return that.cube;
-          }
-          var c = new THREE.Mesh( geometry, material );
-          c.position.x = x;
-          c.position.y = y;
-          that.cube = c;
-          return c;
-        }
-
-        that.neighbours = function() {
-          if (calculatedNeighbours) {
-            return calculatedNeighbours;
-          }
-          calculatedNeighbours = neighboursOf(x,y);
-          return calculatedNeighbours;
-        }
-
-        that.isSameAs = function(other) {
-          return x == other.x && y == other.y;
-        }
-
-        return that;
+      function Cell(x,y) {
+        this.x = x;
+        this.y = y;
       }
 
-      var stopCounter = 0;
-      var nextGeneration = function(cells) {
+      Cell.prototype.neighbours = function(){
+        if (this.calculatedNeighbours) {
+          return this.calculatedNeighbours;
+        }
 
-        // console.log("cells", cells);  
+        this.calculatedNeighbours = [
+            new Cell(this.x-1,this.y-1),
+            new Cell(this.x,this.y-1),
+            new Cell(this.x+1,this.y-1),
 
+            new Cell(this.x-1,this.y),
+            new Cell(this.x+1,this.y),
+
+            new Cell(this.x-1,this.y+1),
+            new Cell(this.x,this.y+1),
+            new Cell(this.x+1,this.y+1),
+          ];
+        return this.calculatedNeighbours;
+      };    
+
+      Cell.prototype.isSameAs = function(other) {
+        return this.x == other.x && this.y == other.y;
+      }
+
+      Cell.prototype.object3d = function(geometry, material) {
+          if (this.cube) {
+            return this.cube;
+          }
+          var c = new THREE.Mesh( geometry, material );
+          c.position.x = this.x;
+          c.position.y = this.y;
+          this.cube = c;
+          return c;
+      }
+
+      var getCandidates = function(cells) {
         var index, i;
         var candidates = [];
 
@@ -118,7 +104,15 @@
 
         // console.log("filtered", filtered);
 
-        candidates = filtered;
+        return filtered;
+      }
+      
+      var nextGeneration = function(cells) {
+
+      
+        var index;
+      
+        var candidates = getCandidates(cells);
         
         var nextGenerationCells = [];
 
@@ -148,9 +142,9 @@
           } 
         }
 
-        nextGenerationCells.push(Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
-        nextGenerationCells.push(Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
-        nextGenerationCells.push(Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
+        nextGenerationCells.push(new Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
+        nextGenerationCells.push(new Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
+        nextGenerationCells.push(new Cell(Math.floor((Math.random() * 60) + 1), Math.floor((Math.random() * 60) + 1)));
         
         
         return nextGenerationCells;
@@ -158,19 +152,19 @@
 
       var Blinker = function(x,y) {
         return [
-        Cell(x,y),
-        Cell(x+1,y),
-        Cell(x+2,y),
+        new Cell(x,y),
+        new Cell(x+1,y),
+        new Cell(x+2,y),
         ];
       }
 
       var Glider = function(x,y) {
         return[
-          Cell(x,y+1),
-          Cell(x+2,y),
-          Cell(x+2,y+1),
-          Cell(x+2,y+2),
-          Cell(x+1,y+2),
+          new Cell(x,y+1),
+          new Cell(x+2,y),
+          new Cell(x+2,y+1),
+          new Cell(x+2,y+2),
+          new Cell(x+1,y+2),
         ];
       }
       var cells = [
@@ -191,10 +185,6 @@
       var camera_z_direction = 0.3;
 
       var render = function () {
-        stopCounter = stopCounter + 1;
-        // if (stopCounter > 50) {
-        //   return;
-        // }
         var obj, i;
         for ( i = scene.children.length - 1; i >= 0 ; i -- ) {
             obj = scene.children[ i ];
@@ -231,10 +221,10 @@
         }
 
         renderer.render(scene, camera);
-
-        setTimeout(function(){
-          requestAnimationFrame( render );
-        }, 50);
+        requestAnimationFrame( render );
+        // setTimeout(function(){
+          
+        // }, 50);
         
       };
 
