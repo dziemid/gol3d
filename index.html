@@ -128,7 +128,7 @@
           }
 
           if (!seenAlready) {
-            if (filtered.length > 1500) {
+            if (filtered.length > 2000) {
               return filtered;
             }
             filtered.push(candidates[index]);
@@ -205,7 +205,7 @@
         ];
       }
       var cells = [
-      ].concat(Glider(-10,-9)).concat(Blinker(37,11)).concat(Blinker(50,0)).concat(Glider(4,0,4))
+      ].concat(Blinker(37,11)).concat(Blinker(50,0)).concat(Glider(4,0,4))
       
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
@@ -279,7 +279,7 @@
         cells = nextGeneration(cells);
         setTimeout(function(){
           recalculateLife();  
-        }, 500);
+        }, 300);
       }
 
       recalculateLife();
